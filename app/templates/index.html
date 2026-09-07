@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gmail Archive</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ✉
+            </div>
+
+            <div>
+
+                <strong>Mail Archive</strong>
+
+                <span>
+                    Gmail local
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <span class="sidebar-title">
+                BUZÓN
+            </span>
+
+            <a
+                href="/"
+                class="sidebar-link active"
+            >
+
+                <span>📥</span>
+
+                <span>
+                    Todos los correos
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <div class="sidebar-footer">
+
+            <span>
+                Archivo local
+            </span>
+
+            <span class="status-dot"></span>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
+
+    <main class="main">
+
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Todos los correos
+                </h1>
+
+                <p>
+                    {{ total }} correos archivados
+                </p>
+
+            </div>
+
+
+            <div class="archive-badge">
+
+                <span class="status-dot"></span>
+
+                Archivo activo
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             BÚSQUEDA
+        ========================== -->
+
+        <section class="toolbar">
+
+            <form
+                method="get"
+                action="/"
+                class="search-box"
+            >
+
+                <span class="search-icon">
+                    🔎
+                </span>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Buscar por remitente, destinatario o asunto..."
+                >
+
+                <input
+                    type="hidden"
+                    name="sort"
+                    value="{{ sort }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="date_from"
+                    value="{{ date_from }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="date_to"
+                    value="{{ date_to }}"
+                >
+
+                <button type="submit">
+                    Buscar
+                </button>
+
+            </form>
+
+
+            {% if search or date_from or date_to %}
+
+                <a
+                    href="/?sort={{ sort }}"
+                    class="clear-search"
+                >
+                    ✕ Limpiar filtros
+                </a>
+
+            {% endif %}
+
+
+            <form
+                method="get"
+                action="/"
+                class="date-filter"
+            >
+
+                <input
+                    type="hidden"
+                    name="search"
+                    value="{{ search }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="sort"
+                    value="{{ sort }}"
+                >
+
+
+                <div class="date-field">
+
+                    <label>
+                        Desde
+                    </label>
+
+                    <input
+                        type="date"
+                        name="date_from"
+                        value="{{ date_from }}"
+                    >
+
+                </div>
+
+
+                <div class="date-field">
+
+                    <label>
+                        Hasta
+                    </label>
+
+                    <input
+                        type="date"
+                        name="date_to"
+                        value="{{ date_to }}"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="filter-button"
+                >
+                    📅 Filtrar
+                </button>
+
+            </form>
+
+
+            <div class="sort-box">
+
+                <span>
+                    Ordenar:
+                </span>
+
+                {% if sort == "newest" %}
+
+                    <a
+                        href="?search={{ search }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=oldest&page=1"
+                        class="sort-button"
+                    >
+                        ↓ Más recientes
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="?search={{ search }}&date_from={{ date_from }}&date_to={{ date_to }}&sort=newest&page=1"
+                        class="sort-button"
+                    >
+                        ↑ Más antiguos
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             LISTA DE CORREOS
+        ========================== -->
+
+        <section class="mail-card">
+
+
+            {% if messages %}
+
+
+                <div class="mail-header">
+
+                    <span>
+                        Mostrando
+                        <strong>
+                            {{ ((page - 1) * 25) + 1 }}
+                        </strong>
+                        -
+                        <strong>
+                            {{ ((page - 1) * 25) + messages|length }}
+                        </strong>
+                        de
+                        <strong>
+                            {{ total }}
+                        </strong>
+                    </span>
+
+                </div>
+
+
+                {% for message in messages %}
+
+                <a
+                    class="mail-row"
+                    href="{{ url_for(
+                        'email',
+                        gmail_id=message['gmail_id']
+                    ) }}"
+                >
+
+
+                    <div class="mail-avatar">
+
+                        {{ (
+                            message["sender"] or "?"
+                        )[0]|upper }}
+
+                    </div>
+
+
+                    <div class="mail-content">
+
+                        <div class="mail-top">
+
+                            <span class="sender">
+
+                                {{ message["sender"] or "Remitente desconocido" }}
+
+                            </span>
+
+
+                            <span class="date">
+
+                                {{ message["message_date"] }}
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="subject">
+
+                            {{ message["subject"] or "(Sin asunto)" }}
+
+                        </div>
+
+
+                        <div class="recipient">
+
+                            Para:
+                            {{ message["recipients"] or "—" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mail-size">
+
+                        {{ "%.1f"|format(
+                            message["size_bytes"] / 1024
+                        ) }}
+                        KB
+
+                    </div>
+
+
+                </a>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        📭
+                    </div>
+
+                    <h2>
+                        No encontramos correos
+                    </h2>
+
+                    <p>
+                        Intenta cambiar los términos de búsqueda.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+        </section>
+
+
+        <!-- =========================
+             PAGINACIÓN
+        ========================== -->
+
+        {% if total_pages > 1 %}
+
+        <nav class="pagination">
+
+
+            {% if page > 1 %}
+
+                <a
+                    href="?page=1&search={{ search }}&sort={{ sort }}"
+                    class="page-button"
+                    title="Primera página"
+                >
+                    «
+                </a>
+
+                <a
+                    href="?page={{ page - 1 }}&search={{ search }}&sort={{ sort }}"
+                    class="page-button"
+                    title="Página anterior"
+                >
+                    ‹
+                </a>
+
+            {% else %}
+
+                <span class="page-button disabled">
+                    «
+                </span>
+
+                <span class="page-button disabled">
+                    ‹
+                </span>
+
+            {% endif %}
+
+
+            <span class="page-info">
+
+                Página
+                <strong>{{ page }}</strong>
+                de
+                <strong>{{ total_pages }}</strong>
+
+            </span>
+
+
+            {% if page < total_pages %}
+
+                <a
+                    href="?page={{ page + 1 }}&search={{ search }}&sort={{ sort }}"
+                    class="page-button"
+                    title="Página siguiente"
+                >
+                    ›
+                </a>
+
+                <a
+                    href="?page={{ total_pages }}&search={{ search }}&sort={{ sort }}"
+                    class="page-button"
+                    title="Última página"
+                >
+                    »
+                </a>
+
+            {% else %}
+
+                <span class="page-button disabled">
+                    ›
+                </span>
+
+                <span class="page-button disabled">
+                    »
+                </span>
+
+            {% endif %}
+
+
+        </nav>
+
+        {% endif %}
+
+
+        <footer>
+
+            Gmail Archive ·
+            {{ total }} correos almacenados
+
+        </footer>
+
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {{ message["subject"] or "Correo" }}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                ✉
+            </div>
+
+            <div>
+
+                <strong>Mail Archive</strong>
+
+                <span>
+                    Gmail local
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <span class="sidebar-title">
+                BUZÓN
+            </span>
+
+            <a
+                href="/"
+                class="sidebar-link active"
+            >
+
+                <span>📥</span>
+
+                <span>
+                    Todos los correos
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <div class="sidebar-footer">
+
+            <span>
+                Archivo local
+            </span>
+
+            <span class="status-dot"></span>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+
+        <a
+            href="/"
+            class="back"
+        >
+            ← Volver a los correos
+        </a>
+
+
+        <article class="email-card">
+
+
+            <header class="email-header">
+
+                <h1>
+                    {{ message["subject"] or "(Sin asunto)" }}
+                </h1>
+
+
+                <div class="email-metadata">
+
+                    <p>
+
+                        <strong>De:</strong>
+
+                        {{ message["sender"] or "Desconocido" }}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Para:</strong>
+
+                        {{ message["recipients"] or "—" }}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Fecha:</strong>
+
+                        {{ message["message_date"] }}
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Tamaño:</strong>
+
+                        {{ "%.1f"|format(
+                            message["size_bytes"] / 1024
+                        ) }}
+
+                        KB
+
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <section class="email-body">
+
+
+                {% if body_html %}
+
+                    <iframe
+                        srcdoc="{{ body_html|e }}"
+                        class="email-frame"
+                        sandbox=""
+                    ></iframe>
+
+
+                {% elif body_text %}
+
+                    <pre>{{ body_text }}</pre>
+
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            📭
+                        </div>
+
+                        <h2>
+                            Este correo no tiene contenido visible
+                        </h2>
+
+                    </div>
+
+                {% endif %}
+
+
+            </section>
+
+
+            {% if attachments %}
+
+            <section class="attachments">
+
+                <h2>
+                    📎 Archivos adjuntos
+                    <span>
+                        ({{ attachments|length }})
+                    </span>
+                </h2>
+
+
+                <div class="attachment-list">
+
+
+                    {% for attachment in attachments %}
+
+                    <div class="attachment">
+
+
+                        <div>
+
+                            <strong>
+                                📄
+                                {{ attachment["filename"] }}
+                            </strong>
+
+
+                            {% if attachment["size_bytes"] %}
+
+                                <span>
+
+                                    {{ "%.1f"|format(
+                                        attachment["size_bytes"] / 1024
+                                    ) }}
+
+                                    KB
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <a
+                            href="{{ url_for(
+                                'attachment',
+                                attachment_id=attachment['id']
+                            ) }}"
+                            target="_blank"
+                        >
+                            Abrir
+                        </a>
+
+
+                    </div>
+
+                    {% endfor %}
+
+
+                </div>
+
+            </section>
+
+            {% endif %}
+
+
+            <footer class="email-actions">
+
+                <a
+                    href="{{ url_for(
+                        'download_eml',
+                        gmail_id=message['gmail_id']
+                    ) }}"
+                    class="button"
+                >
+                    ⬇ Descargar correo original (.eml)
+                </a>
+
+            </footer>
+
+
+        </article>
+
+
+        <footer>
+
+            Gmail Archive ·
+            {{ message["gmail_id"] }}
+
+        </footer>
+
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

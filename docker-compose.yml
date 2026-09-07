@@ -1,0 +1,49 @@
+services:
+
+  mail-archive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: mail-archive
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./data:/data
+      - ./mail:/mail
+      - ./attachments:/attachments
+      - ./backup:/backup
+      - ./logs:/logs
+      - ./oauth:/oauth
+      - ./credentials:/credentials:ro
+
+    environment:
+      TZ: America/Mazatlan
+      PYTHONUNBUFFERED: "1"
+
+
+  archive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: mail-archive-job
+
+    volumes:
+      - ./data:/data
+      - ./mail:/mail
+      - ./attachments:/attachments
+      - ./backup:/backup
+      - ./logs:/logs
+      - ./oauth:/oauth
+      - ./credentials:/credentials:ro
+
+    environment:
+      TZ: America/Mazatlan
+      PYTHONUNBUFFERED: "1"
+
+    command: ["python", "archive.py"]
