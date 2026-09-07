@@ -1,6 +1,9 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+SCOPES = [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/photoslibrary.readonly"
+]
 
 CREDENTIALS_FILE = "/srv/mail-archive/credentials/client_secret_185654323324-hjd9atmg2m5364s884emcnktvgk91r31.apps.googleusercontent.com.json"
 
