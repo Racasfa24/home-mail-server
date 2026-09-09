@@ -1,11 +1,23 @@
-from flask import Flask, render_template, request, abort, send_file
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    send_file,
+    abort,
+)
 from email import policy
 from email.parser import BytesParser
 from pathlib import Path
 import sqlite3
 from email.utils import parsedate_to_datetime
-
+from photo_upload import import_uploaded_file
 app = Flask(__name__)
+
+# Tamaño máximo permitido por petición: 2 GB
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 * 1024
 
 BASE_DIR = Path("/srv/mail-archive")
 DB_PATH = Path("/data/index.db")
@@ -624,6 +636,64 @@ def photo_thumbnail(photo_id):
         filepath,
         mimetype=photo["mime_type"],
         conditional=True
+    )
+@app.route(
+    "/upload",
+    methods=["GET", "POST"]
+)
+def upload_photos():
+
+    if request.method == "GET":
+        return render_template(
+            "upload.html"
+        )
+
+    files = request.files.getlist(
+        "files"
+    )
+
+    if not files:
+        flash(
+            "No seleccionaste ningún archivo.",
+            "error"
+        )
+
+        return redirect(
+            url_for("upload_photos")
+        )
+
+    results = []
+
+    for uploaded_file in files:
+
+        if not uploaded_file.filename:
+            continue
+
+        try:
+            result = import_uploaded_file(
+                uploaded_file
+            )
+
+            results.append(result)
+
+        except Exception as exc:
+            print(
+                f"[UPLOAD ERROR] "
+                f"{uploaded_file.filename}: "
+                f"{exc}"
+            )
+
+            results.append({
+                "status": "error",
+                "message": (
+                    f"No se pudo importar "
+                    f"{uploaded_file.filename}."
+                )
+            })
+
+    return render_template(
+        "upload.html",
+        results=results
     )
 if __name__ == "__main__":
 

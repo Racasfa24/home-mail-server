@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Subir fotos</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='photos.css') }}">
+</head>
+
+<body>
+
+    <div class="upload-page">
+
+        <div class="upload-header">
+
+            <div>
+                <p class="upload-eyebrow">
+                    Archivo familiar
+                </p>
+
+                <h1>
+                    Subir fotos y videos
+                </h1>
+
+                <p class="upload-description">
+                    Selecciona archivos desde tu celular
+                    o computadora. Los duplicados se
+                    detectarán automáticamente.
+                </p>
+            </div>
+
+            <a href="{{ url_for('photos') }}" class="upload-back-button">
+                ← Volver a Fotos
+            </a>
+
+        </div>
+
+
+        <form method="POST" enctype="multipart/form-data" class="upload-card" id="uploadForm">
+
+            <label class="upload-dropzone" for="files" id="dropzone">
+
+                <div class="upload-icon">
+                    ↑
+                </div>
+
+                <strong>
+                    Selecciona fotos o videos
+                </strong>
+
+                <span>
+                    También puedes arrastrarlos aquí
+                </span>
+
+                <input type="file" id="files" name="files" accept="image/*,video/*" multiple required>
+
+            </label>
+
+
+            <div class="upload-selection" id="selection">
+                Ningún archivo seleccionado.
+            </div>
+
+
+            <button type="submit" class="upload-submit" id="submitButton">
+                Subir archivos
+            </button>
+
+
+            <div class="upload-progress" id="uploadProgress" hidden>
+                <div class="upload-spinner"></div>
+
+                <span>
+                    Subiendo y archivando...
+                </span>
+            </div>
+
+        </form>
+
+
+        {% if results %}
+
+        <section class="upload-results">
+
+            <h2>
+                Resultado
+            </h2>
+
+            {% for result in results %}
+
+            <div class="
+                        upload-result
+                        upload-result-{{ result.status }}
+                    ">
+
+                {% if result.status == "imported" %}
+                <span>✓</span>
+
+                {% elif result.status == "duplicate" %}
+                <span>↺</span>
+
+                {% else %}
+                <span>!</span>
+                {% endif %}
+
+                <div>
+
+                    <strong>
+                        {{ result.message }}
+                    </strong>
+
+                    {% if result.date_source %}
+
+                    <small>
+                        Fecha detectada mediante
+                        {{ result.date_source }}
+                    </small>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+        {% endif %}
+
+    </div>
+
+
+    <script>
+        const filesInput =
+            document.getElementById("files");
+
+        const selection =
+            document.getElementById("selection");
+
+        const form =
+            document.getElementById("uploadForm");
+
+        const button =
+            document.getElementById("submitButton");
+
+        const progress =
+            document.getElementById("uploadProgress");
+
+        filesInput.addEventListener(
+            "change",
+            () => {
+
+                const files =
+                    filesInput.files;
+
+                if (!files.length) {
+
+                    selection.textContent =
+                        "Ningún archivo seleccionado.";
+
+                    return;
+                }
+
+                let totalBytes = 0;
+
+                for (const file of files) {
+                    totalBytes += file.size;
+                }
+
+                const totalMB =
+                    totalBytes / 1024 / 1024;
+
+                selection.textContent =
+                    `${files.length} archivo(s) · ` +
+                    `${totalMB.toFixed(1)} MB`;
+            }
+        );
+
+
+        form.addEventListener(
+            "submit",
+            () => {
+
+                button.disabled = true;
+                button.hidden = true;
+
+                progress.hidden = false;
+            }
+        );
+    </script>
+
+</body>
+
+</html>

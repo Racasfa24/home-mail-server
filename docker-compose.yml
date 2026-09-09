@@ -22,6 +22,7 @@ services:
       - ./credentials:/credentials:ro
       - ./photos:/photos
       - ./thumbnails:/thumbnails
+      - ./photos-inbox:/photos-inbox
 
     environment:
       TZ: America/Mazatlan
