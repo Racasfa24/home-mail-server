@@ -12,3 +12,6 @@ oauth/
 *.sqlite
 *.sqlite3
 .env
+thumbnails/
+photos/
+photos-import/

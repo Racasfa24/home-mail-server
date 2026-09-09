@@ -1,18 +1,23 @@
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
 
+    ```
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Mis Fotos</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='photos.css') }}">
+    ```
+
 </head>
 
 <body>
 
+    ```
     <header class="topbar">
 
         <div class="brand">
@@ -111,18 +116,15 @@
             <article class="media-card">
 
                 <a class="media-preview" href="{{ url_for(
-                            'photo_file',
-                            photo_id=photo.id
-                        ) }}" target="_blank">
+                    'photo_file',
+                    photo_id=photo.id
+                ) }}" target="_blank">
 
                     {% if photo.mime_type.startswith("video/") %}
 
-                    <video preload="metadata" muted>
-                        <source src="{{ url_for(
-                                        'photo_file',
-                                        photo_id=photo.id
-                                    ) }}" type="{{ photo.mime_type }}">
-                    </video>
+                    <div class="video-placeholder">
+                        <span>▶</span>
+                    </div>
 
                     <div class="video-badge">
                         ▶
@@ -131,9 +133,9 @@
                     {% else %}
 
                     <img src="{{ url_for(
-                                    'photo_file',
-                                    photo_id=photo.id
-                                ) }}" alt="{{ photo.filename }}" loading="lazy">
+                        'photo_thumbnail',
+                        photo_id=photo.id
+                    ) }}" alt="{{ photo.filename }}" loading="lazy" decoding="async">
 
                     {% endif %}
 
@@ -162,13 +164,14 @@
 
                     {% endif %}
 
+                    <a href="{{ url_for(
+                        'photo_download',
+                        photo_id=photo.id
+                    ) }}" class="download-button">
+                        ⬇ Descargar
+                    </a>
+
                 </div>
-                <a href="{{ url_for(
-                'photo_download',
-                photo_id=photo.id
-            ) }}" class="download-button">
-                    ⬇ Descargar
-                </a>
 
             </article>
 
@@ -182,20 +185,20 @@
             {% if page > 1 %}
 
             <a href="{{ url_for(
-                        'photos',
-                        page=1,
-                        year=selected_year or '',
-                        month=selected_month or ''
-                    ) }}">
+                'photos',
+                page=1,
+                year=selected_year or '',
+                month=selected_month or ''
+            ) }}">
                 « Primera
             </a>
 
             <a href="{{ url_for(
-                        'photos',
-                        page=page - 1,
-                        year=selected_year or '',
-                        month=selected_month or ''
-                    ) }}">
+                'photos',
+                page=page - 1,
+                year=selected_year or '',
+                month=selected_month or ''
+            ) }}">
                 ‹ Anterior
             </a>
 
@@ -208,20 +211,20 @@
 
 
             {% if page < total_pages %} <a href="{{ url_for(
-                        'photos',
-                        page=page + 1,
-                        year=selected_year or '',
-                        month=selected_month or ''
-                    ) }}">
+                'photos',
+                page=page + 1,
+                year=selected_year or '',
+                month=selected_month or ''
+            ) }}">
                 Siguiente ›
                 </a>
 
                 <a href="{{ url_for(
-                        'photos',
-                        page=total_pages,
-                        year=selected_year or '',
-                        month=selected_month or ''
-                    ) }}">
+                'photos',
+                page=total_pages,
+                year=selected_year or '',
+                month=selected_month or ''
+            ) }}">
                     Última »
                 </a>
 
@@ -246,6 +249,7 @@
         {% endif %}
 
     </main>
+    ```
 
 </body>
 

@@ -21,6 +21,7 @@ services:
       - ./oauth:/oauth
       - ./credentials:/credentials:ro
       - ./photos:/photos
+      - ./thumbnails:/thumbnails
 
     environment:
       TZ: America/Mazatlan

@@ -575,7 +575,56 @@ def photo_download(photo_id):
         as_attachment=True,
         download_name=photo["filename"]
     )
+@app.route("/photos/thumbnail/<int:photo_id>")
+def photo_thumbnail(photo_id):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
 
+    photo = conn.execute(
+        """
+        SELECT
+            sha256,
+            filepath,
+            mime_type
+        FROM photos
+        WHERE id = ?
+        """,
+        (photo_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not photo:
+        abort(404)
+
+    sha256 = photo["sha256"]
+
+    thumbnail = (
+        Path("/thumbnails")
+        / sha256[:2]
+        / f"{sha256}.webp"
+    )
+
+    if thumbnail.exists():
+        return send_file(
+            thumbnail,
+            mimetype="image/webp",
+            conditional=True,
+            max_age=604800
+        )
+
+    filepath = resolve_path(
+        photo["filepath"]
+    )
+
+    if not filepath.exists():
+        abort(404)
+
+    return send_file(
+        filepath,
+        mimetype=photo["mime_type"],
+        conditional=True
+    )
 if __name__ == "__main__":
 
     app.run(
