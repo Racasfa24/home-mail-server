@@ -489,3 +489,34 @@ body {
     }
 
 }
+
+.download-button {
+    margin-top: 10px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    min-height: 36px;
+
+    border-radius: 9px;
+
+    background: #f1f3f8;
+    color: #273148;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+.download-button:hover {
+    background: #e4e8f1;
+    transform: translateY(-1px);
+}

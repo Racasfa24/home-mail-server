@@ -1,80 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Mis Fotos</title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='photos.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='photos.css') }}">
 </head>
 
 <body>
 
-<header class="topbar">
+    <header class="topbar">
 
-    <div class="brand">
-        <div class="brand-icon">📸</div>
+        <div class="brand">
+            <div class="brand-icon">📸</div>
 
-        <div>
-            <h1>Mis Fotos</h1>
-            <p>{{ total }} elementos archivados</p>
+            <div>
+                <h1>Mis Fotos</h1>
+                <p>{{ total }} elementos archivados</p>
+            </div>
         </div>
-    </div>
 
-    <a href="/" class="mail-button">
-        ✉️ Correos
-    </a>
+        <a href="/" class="mail-button">
+            ✉️ Correos
+        </a>
 
-</header>
+    </header>
 
 
-<main class="container">
+    <main class="container">
 
-    <section class="toolbar">
+        <section class="toolbar">
 
-        <form
-            method="GET"
-            action="{{ url_for('photos') }}"
-            class="filters"
-        >
+            <form method="GET" action="{{ url_for('photos') }}" class="filters">
 
-            <select name="year">
+                <select name="year">
 
-                <option value="">
-                    Todos los años
-                </option>
+                    <option value="">
+                        Todos los años
+                    </option>
 
-                {% for item in years %}
+                    {% for item in years %}
 
-                    <option
-                        value="{{ item.year }}"
-                        {% if selected_year == item.year %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="{{ item.year }}" {% if selected_year==item.year %} selected {% endif %}>
                         {{ item.year }}
                     </option>
 
-                {% endfor %}
+                    {% endfor %}
 
-            </select>
+                </select>
 
 
-            <select name="month">
+                <select name="month">
 
-                <option value="">
-                    Todos los meses
-                </option>
+                    <option value="">
+                        Todos los meses
+                    </option>
 
-                {% set months = [
+                    {% set months = [
                     "Enero",
                     "Febrero",
                     "Marzo",
@@ -87,123 +73,104 @@
                     "Octubre",
                     "Noviembre",
                     "Diciembre"
-                ] %}
+                    ] %}
 
-                {% for month_name in months %}
+                    {% for month_name in months %}
 
-                    <option
-                        value="{{ loop.index }}"
-                        {% if selected_month == loop.index %}
-                            selected
-                        {% endif %}
-                    >
+                    <option value="{{ loop.index }}" {% if selected_month==loop.index %} selected {% endif %}>
                         {{ month_name }}
                     </option>
 
-                {% endfor %}
+                    {% endfor %}
 
-            </select>
+                </select>
 
-            <button type="submit">
-                Filtrar
-            </button>
+                <button type="submit">
+                    Filtrar
+                </button>
 
-            {% if selected_year or selected_month %}
+                {% if selected_year or selected_month %}
 
-                <a
-                    href="{{ url_for('photos') }}"
-                    class="clear-button"
-                >
+                <a href="{{ url_for('photos') }}" class="clear-button">
                     Limpiar
                 </a>
 
-            {% endif %}
+                {% endif %}
 
-        </form>
+            </form>
 
-    </section>
+        </section>
 
 
-    {% if photos %}
+        {% if photos %}
 
         <section class="gallery">
 
             {% for photo in photos %}
 
-                <article class="media-card">
+            <article class="media-card">
 
-                    <a
-                        class="media-preview"
-                        href="{{ url_for(
+                <a class="media-preview" href="{{ url_for(
                             'photo_file',
                             photo_id=photo.id
-                        ) }}"
-                        target="_blank"
-                    >
+                        ) }}" target="_blank">
 
-                        {% if photo.mime_type.startswith("video/") %}
+                    {% if photo.mime_type.startswith("video/") %}
 
-                            <video
-                                preload="metadata"
-                                muted
-                            >
-                                <source
-                                    src="{{ url_for(
+                    <video preload="metadata" muted>
+                        <source src="{{ url_for(
                                         'photo_file',
                                         photo_id=photo.id
-                                    ) }}"
-                                    type="{{ photo.mime_type }}"
-                                >
-                            </video>
+                                    ) }}" type="{{ photo.mime_type }}">
+                    </video>
 
-                            <div class="video-badge">
-                                ▶
-                            </div>
-
-                        {% else %}
-
-                            <img
-                                src="{{ url_for(
-                                    'photo_file',
-                                    photo_id=photo.id
-                                ) }}"
-                                alt="{{ photo.filename }}"
-                                loading="lazy"
-                            >
-
-                        {% endif %}
-
-                        {% if photo.favorite %}
-
-                            <div class="favorite">
-                                ★
-                            </div>
-
-                        {% endif %}
-
-                    </a>
-
-
-                    <div class="media-info">
-
-                        <div
-                            class="filename"
-                            title="{{ photo.filename }}"
-                        >
-                            {{ photo.filename }}
-                        </div>
-
-                        {% if photo.taken_at_local %}
-
-                            <div class="date">
-                                {{ photo.taken_at_local[:10] }}
-                            </div>
-
-                        {% endif %}
-
+                    <div class="video-badge">
+                        ▶
                     </div>
 
-                </article>
+                    {% else %}
+
+                    <img src="{{ url_for(
+                                    'photo_file',
+                                    photo_id=photo.id
+                                ) }}" alt="{{ photo.filename }}" loading="lazy">
+
+                    {% endif %}
+
+                    {% if photo.favorite %}
+
+                    <div class="favorite">
+                        ★
+                    </div>
+
+                    {% endif %}
+
+                </a>
+
+
+                <div class="media-info">
+
+                    <div class="filename" title="{{ photo.filename }}">
+                        {{ photo.filename }}
+                    </div>
+
+                    {% if photo.taken_at_local %}
+
+                    <div class="date">
+                        {{ photo.taken_at_local[:10] }}
+                    </div>
+
+                    {% endif %}
+
+                </div>
+                <a href="{{ url_for(
+                'photo_download',
+                photo_id=photo.id
+            ) }}" class="download-button">
+                    ⬇ Descargar
+                </a>
+
+            </article>
 
             {% endfor %}
 
@@ -214,27 +181,23 @@
 
             {% if page > 1 %}
 
-                <a
-                    href="{{ url_for(
+            <a href="{{ url_for(
                         'photos',
                         page=1,
                         year=selected_year or '',
                         month=selected_month or ''
-                    ) }}"
-                >
-                    « Primera
-                </a>
+                    ) }}">
+                « Primera
+            </a>
 
-                <a
-                    href="{{ url_for(
+            <a href="{{ url_for(
                         'photos',
                         page=page - 1,
                         year=selected_year or '',
                         month=selected_month or ''
-                    ) }}"
-                >
-                    ‹ Anterior
-                </a>
+                    ) }}">
+                ‹ Anterior
+            </a>
 
             {% endif %}
 
@@ -244,35 +207,29 @@
             </span>
 
 
-            {% if page < total_pages %}
-
-                <a
-                    href="{{ url_for(
+            {% if page < total_pages %} <a href="{{ url_for(
                         'photos',
                         page=page + 1,
                         year=selected_year or '',
                         month=selected_month or ''
-                    ) }}"
-                >
-                    Siguiente ›
+                    ) }}">
+                Siguiente ›
                 </a>
 
-                <a
-                    href="{{ url_for(
+                <a href="{{ url_for(
                         'photos',
                         page=total_pages,
                         year=selected_year or '',
                         month=selected_month or ''
-                    ) }}"
-                >
+                    ) }}">
                     Última »
                 </a>
 
-            {% endif %}
+                {% endif %}
 
         </nav>
 
-    {% else %}
+        {% else %}
 
         <section class="empty-state">
 
@@ -286,9 +243,10 @@
 
         </section>
 
-    {% endif %}
+        {% endif %}
 
-</main>
+    </main>
 
 </body>
+
 </html>

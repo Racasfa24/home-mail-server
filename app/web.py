@@ -545,6 +545,36 @@ def photo_file(photo_id):
         mimetype=photo["mime_type"],
         conditional=True
     )
+@app.route("/photos/download/<int:photo_id>")
+def photo_download(photo_id):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+
+    photo = conn.execute(
+        """
+        SELECT filename, filepath, mime_type
+        FROM photos
+        WHERE id = ?
+        """,
+        (photo_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not photo:
+        abort(404)
+
+    filepath = resolve_path(photo["filepath"])
+
+    if not filepath.exists():
+        abort(404)
+
+    return send_file(
+        filepath,
+        mimetype=photo["mime_type"],
+        as_attachment=True,
+        download_name=photo["filename"]
+    )
 
 if __name__ == "__main__":
 
