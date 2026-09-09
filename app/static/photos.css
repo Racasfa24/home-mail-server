@@ -1,0 +1,491 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #f5f7fb;
+    color: #172033;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+}
+
+
+/* HEADER */
+
+.topbar {
+    min-height: 92px;
+
+    padding:
+        18px
+        clamp(18px, 4vw, 54px);
+
+    background: rgba(255, 255, 255, 0.9);
+
+    border-bottom: 1px solid #e8ebf0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 20;
+
+    backdrop-filter: blur(16px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    min-width: 0;
+}
+
+.brand-icon {
+    width: 52px;
+    height: 52px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 16px;
+
+    background: #eef2ff;
+
+    font-size: 26px;
+}
+
+.brand h1 {
+    margin: 0;
+
+    font-size: clamp(21px, 3vw, 28px);
+    line-height: 1.1;
+}
+
+.brand p {
+    margin: 5px 0 0;
+
+    color: #7a8497;
+
+    font-size: 13px;
+}
+
+.mail-button {
+    text-decoration: none;
+
+    background: #172033;
+    color: white;
+
+    border-radius: 12px;
+
+    padding: 10px 16px;
+
+    font-weight: 600;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.mail-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+
+/* CONTENT */
+
+.container {
+    width: min(1500px, 100%);
+
+    margin: 0 auto;
+
+    padding:
+        28px
+        clamp(14px, 3vw, 36px)
+        48px;
+}
+
+
+/* FILTERS */
+
+.toolbar {
+    margin-bottom: 24px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+.filters select,
+.filters button,
+.clear-button {
+    min-height: 42px;
+
+    border-radius: 11px;
+
+    font: inherit;
+}
+
+.filters select {
+    min-width: 150px;
+
+    border: 1px solid #dfe3ea;
+
+    padding: 0 13px;
+
+    background: white;
+    color: #172033;
+
+    outline: none;
+}
+
+.filters select:focus {
+    border-color: #8494ff;
+}
+
+.filters button {
+    border: 0;
+
+    padding: 0 20px;
+
+    background: #4f63e9;
+    color: white;
+
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+.clear-button {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0 17px;
+
+    border: 1px solid #dfe3ea;
+
+    background: white;
+    color: #566075;
+
+    text-decoration: none;
+}
+
+
+/* GALLERY */
+
+.gallery {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(210px, 1fr)
+        );
+
+    gap: 14px;
+}
+
+.media-card {
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: white;
+
+    border: 1px solid #e8ebf0;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(21, 31, 54, 0.04);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.media-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 28px
+        rgba(21, 31, 54, 0.10);
+}
+
+
+/* PHOTO */
+
+.media-preview {
+    position: relative;
+
+    display: block;
+
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background: #edf0f5;
+}
+
+.media-preview img,
+.media-preview video {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: transform 0.25s ease;
+}
+
+.media-card:hover img,
+.media-card:hover video {
+    transform: scale(1.035);
+}
+
+
+/* BADGES */
+
+.favorite {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: rgba(20, 25, 35, 0.72);
+    color: #ffd84a;
+
+    backdrop-filter: blur(8px);
+}
+
+.video-badge {
+    position: absolute;
+
+    inset: 0;
+
+    margin: auto;
+
+    width: 48px;
+    height: 48px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: rgba(20, 25, 35, 0.68);
+    color: white;
+
+    font-size: 18px;
+
+    backdrop-filter: blur(7px);
+}
+
+
+/* INFO */
+
+.media-info {
+    padding: 11px 13px 13px;
+
+    min-width: 0;
+}
+
+.filename {
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.date {
+    margin-top: 5px;
+
+    color: #8a93a5;
+
+    font-size: 12px;
+}
+
+
+/* PAGINATION */
+
+.pagination {
+    margin-top: 32px;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.pagination a,
+.page-info {
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0 14px;
+
+    border-radius: 10px;
+}
+
+.pagination a {
+    border: 1px solid #dfe3ea;
+
+    background: white;
+    color: #273148;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.page-info {
+    color: #7b8495;
+
+    font-size: 13px;
+}
+
+
+/* EMPTY */
+
+.empty-state {
+    margin-top: 80px;
+
+    text-align: center;
+
+    color: #788296;
+}
+
+.empty-state > div {
+    font-size: 52px;
+}
+
+.empty-state h2 {
+    margin-bottom: 6px;
+
+    color: #263047;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .topbar {
+        min-height: 74px;
+
+        padding: 12px 14px;
+    }
+
+    .brand-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 13px;
+
+        font-size: 22px;
+    }
+
+    .brand p {
+        display: none;
+    }
+
+    .mail-button {
+        padding: 9px 11px;
+
+        font-size: 13px;
+    }
+
+    .container {
+        padding:
+            18px
+            8px
+            36px;
+    }
+
+    .filters select {
+        min-width: 0;
+
+        flex: 1 1 130px;
+    }
+
+    .filters button {
+        flex: 1 0 100px;
+    }
+
+    .gallery {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 5px;
+    }
+
+    .media-card {
+        border-radius: 8px;
+    }
+
+    .media-info {
+        padding: 8px;
+    }
+
+    .filename {
+        font-size: 11px;
+    }
+
+    .date {
+        font-size: 10px;
+    }
+
+}
+
+@media (max-width: 350px) {
+
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+
+}

@@ -20,6 +20,7 @@ services:
       - ./logs:/logs
       - ./oauth:/oauth
       - ./credentials:/credentials:ro
+      - ./photos:/photos
 
     environment:
       TZ: America/Mazatlan

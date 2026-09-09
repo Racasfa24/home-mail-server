@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mis Fotos</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='photos.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="brand-icon">📸</div>
+
+        <div>
+            <h1>Mis Fotos</h1>
+            <p>{{ total }} elementos archivados</p>
+        </div>
+    </div>
+
+    <a href="/" class="mail-button">
+        ✉️ Correos
+    </a>
+
+</header>
+
+
+<main class="container">
+
+    <section class="toolbar">
+
+        <form
+            method="GET"
+            action="{{ url_for('photos') }}"
+            class="filters"
+        >
+
+            <select name="year">
+
+                <option value="">
+                    Todos los años
+                </option>
+
+                {% for item in years %}
+
+                    <option
+                        value="{{ item.year }}"
+                        {% if selected_year == item.year %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ item.year }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select name="month">
+
+                <option value="">
+                    Todos los meses
+                </option>
+
+                {% set months = [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ] %}
+
+                {% for month_name in months %}
+
+                    <option
+                        value="{{ loop.index }}"
+                        {% if selected_month == loop.index %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ month_name }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Filtrar
+            </button>
+
+            {% if selected_year or selected_month %}
+
+                <a
+                    href="{{ url_for('photos') }}"
+                    class="clear-button"
+                >
+                    Limpiar
+                </a>
+
+            {% endif %}
+
+        </form>
+
+    </section>
+
+
+    {% if photos %}
+
+        <section class="gallery">
+
+            {% for photo in photos %}
+
+                <article class="media-card">
+
+                    <a
+                        class="media-preview"
+                        href="{{ url_for(
+                            'photo_file',
+                            photo_id=photo.id
+                        ) }}"
+                        target="_blank"
+                    >
+
+                        {% if photo.mime_type.startswith("video/") %}
+
+                            <video
+                                preload="metadata"
+                                muted
+                            >
+                                <source
+                                    src="{{ url_for(
+                                        'photo_file',
+                                        photo_id=photo.id
+                                    ) }}"
+                                    type="{{ photo.mime_type }}"
+                                >
+                            </video>
+
+                            <div class="video-badge">
+                                ▶
+                            </div>
+
+                        {% else %}
+
+                            <img
+                                src="{{ url_for(
+                                    'photo_file',
+                                    photo_id=photo.id
+                                ) }}"
+                                alt="{{ photo.filename }}"
+                                loading="lazy"
+                            >
+
+                        {% endif %}
+
+                        {% if photo.favorite %}
+
+                            <div class="favorite">
+                                ★
+                            </div>
+
+                        {% endif %}
+
+                    </a>
+
+
+                    <div class="media-info">
+
+                        <div
+                            class="filename"
+                            title="{{ photo.filename }}"
+                        >
+                            {{ photo.filename }}
+                        </div>
+
+                        {% if photo.taken_at_local %}
+
+                            <div class="date">
+                                {{ photo.taken_at_local[:10] }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+
+        <nav class="pagination">
+
+            {% if page > 1 %}
+
+                <a
+                    href="{{ url_for(
+                        'photos',
+                        page=1,
+                        year=selected_year or '',
+                        month=selected_month or ''
+                    ) }}"
+                >
+                    « Primera
+                </a>
+
+                <a
+                    href="{{ url_for(
+                        'photos',
+                        page=page - 1,
+                        year=selected_year or '',
+                        month=selected_month or ''
+                    ) }}"
+                >
+                    ‹ Anterior
+                </a>
+
+            {% endif %}
+
+
+            <span class="page-info">
+                Página {{ page }} de {{ total_pages }}
+            </span>
+
+
+            {% if page < total_pages %}
+
+                <a
+                    href="{{ url_for(
+                        'photos',
+                        page=page + 1,
+                        year=selected_year or '',
+                        month=selected_month or ''
+                    ) }}"
+                >
+                    Siguiente ›
+                </a>
+
+                <a
+                    href="{{ url_for(
+                        'photos',
+                        page=total_pages,
+                        year=selected_year or '',
+                        month=selected_month or ''
+                    ) }}"
+                >
+                    Última »
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+    {% else %}
+
+        <section class="empty-state">
+
+            <div>📷</div>
+
+            <h2>No encontramos fotos</h2>
+
+            <p>
+                No hay elementos para los filtros seleccionados.
+            </p>
+
+        </section>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>

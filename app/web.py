@@ -28,12 +28,16 @@ def resolve_path(path):
 
     old_mail = Path("/srv/mail-archive/mail")
     old_attachments = Path("/srv/mail-archive/attachments")
+    old_photos = Path("/srv/mail-archive/photos")
 
     if path.is_relative_to(old_mail):
         return Path("/mail") / path.relative_to(old_mail)
 
     if path.is_relative_to(old_attachments):
         return Path("/attachments") / path.relative_to(old_attachments)
+
+    if path.is_relative_to(old_photos):
+        return Path("/photos") / path.relative_to(old_photos)
 
     return path
 
@@ -425,7 +429,122 @@ def attachment(attachment_id):
         filepath,
         download_name=attachment_file["filename"]
     )
+@app.route("/photos")
+def photos():
+    page = request.args.get("page", 1, type=int)
+    year = request.args.get("year", type=int)
+    month = request.args.get("month", type=int)
 
+    per_page = 48
+    offset = (page - 1) * per_page
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+
+    conditions = []
+    params = []
+
+    if year:
+        conditions.append(
+            "CAST(substr(taken_at_local, 1, 4) AS INTEGER) = ?"
+        )
+        params.append(year)
+
+    if month:
+        conditions.append(
+            "CAST(substr(taken_at_local, 6, 2) AS INTEGER) = ?"
+        )
+        params.append(month)
+
+    where_clause = ""
+
+    if conditions:
+        where_clause = "WHERE " + " AND ".join(conditions)
+
+    total = conn.execute(
+        f"""
+        SELECT COUNT(*)
+        FROM photos
+        {where_clause}
+        """,
+        params
+    ).fetchone()[0]
+
+    photos = conn.execute(
+        f"""
+        SELECT
+            id,
+            filename,
+            filepath,
+            mime_type,
+            taken_at_local,
+            favorite
+        FROM photos
+        {where_clause}
+        ORDER BY taken_at_local DESC
+        LIMIT ? OFFSET ?
+        """,
+        params + [per_page, offset]
+    ).fetchall()
+
+    years = conn.execute(
+        """
+        SELECT DISTINCT
+            CAST(substr(taken_at_local, 1, 4) AS INTEGER) AS year
+        FROM photos
+        WHERE taken_at_local IS NOT NULL
+        ORDER BY year DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    total_pages = max(
+        1,
+        (total + per_page - 1) // per_page
+    )
+
+    return render_template(
+        "photos.html",
+        photos=photos,
+        page=page,
+        total_pages=total_pages,
+        total=total,
+        years=years,
+        selected_year=year,
+        selected_month=month
+    )
+
+
+@app.route("/photos/file/<int:photo_id>")
+def photo_file(photo_id):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+
+    photo = conn.execute(
+        """
+        SELECT filepath, mime_type
+        FROM photos
+        WHERE id = ?
+        """,
+        (photo_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not photo:
+        abort(404)
+
+    filepath = resolve_path(photo["filepath"])
+
+    if not filepath.exists():
+        abort(404)
+
+    return send_file(
+        filepath,
+        mimetype=photo["mime_type"],
+        conditional=True
+    )
 
 if __name__ == "__main__":
 
