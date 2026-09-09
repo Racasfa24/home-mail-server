@@ -7,7 +7,7 @@ import os
 import re
 import sqlite3
 import uuid
-
+import shutil
 from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
@@ -408,9 +408,9 @@ def import_uploaded_file(file_storage):
             taken_date
         )
 
-        os.replace(
-            temp_path,
-            destination
+        shutil.move(
+            str(temp_path),
+            str(destination)
         )
 
         file_size = destination.stat().st_size
