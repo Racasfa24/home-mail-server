@@ -3,6 +3,7 @@ __pycache__/
 credentials/
 data/
 mail/
+photos-import/
 attachments/
 logs/
 backup/
