@@ -180,8 +180,9 @@ def determine_date(photo):
     """
     Prioridad:
 
-    1. EXIF
-    2. Nombre del archivo
+    1. EXIF, si es imagen
+    2. Timestamp de Facebook
+    3. Fecha incluida en el nombre
     """
 
     filepath = resolve_photo_path(
@@ -192,9 +193,8 @@ def determine_date(photo):
         photo["mime_type"] or ""
     ).lower()
 
-    # Primero EXIF solo para imágenes
+    # 1. EXIF solamente para imágenes
     if mime_type.startswith("image/") and filepath.exists():
-
         exif_date = parse_exif_datetime(
             filepath
         )
@@ -202,7 +202,15 @@ def determine_date(photo):
         if exif_date:
             return exif_date, "EXIF"
 
-    # Después nombre
+    # 2. Timestamp de Facebook
+    facebook_date = parse_facebook_timestamp(
+        photo["filename"]
+    )
+
+    if facebook_date:
+        return facebook_date, "FACEBOOK_TIMESTAMP"
+
+    # 3. Fecha normal incluida en el filename
     filename_date = parse_filename_datetime(
         photo["filename"]
     )
@@ -212,7 +220,51 @@ def determine_date(photo):
 
     return None, None
 
+def parse_facebook_timestamp(filename: str):
+    """
+    Detecta nombres como:
 
+    FB_IMG_1739285559780.jpg
+
+    Facebook suele usar un timestamp Unix
+    expresado en milisegundos.
+    """
+
+    match = re.search(
+        r"FB_IMG_(\d{13})",
+        filename,
+        re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    try:
+        timestamp_ms = int(
+            match.group(1)
+        )
+
+        timestamp_seconds = (
+            timestamp_ms / 1000
+        )
+
+        utc_dt = datetime.fromtimestamp(
+            timestamp_seconds,
+            tz=timezone.utc
+        )
+
+        return utc_dt.astimezone(
+            LOCAL_TZ
+        ).replace(
+            tzinfo=None
+        )
+
+    except (
+        ValueError,
+        OverflowError,
+        OSError
+    ):
+        return None
 def main():
     parser = argparse.ArgumentParser(
         description="Repara fechas incorrectas de fotos importadas."
@@ -257,6 +309,7 @@ def main():
 
     repaired = 0
     exif_count = 0
+    facebook_count = 0
     filename_count = 0
     unresolved = 0
 
@@ -277,8 +330,8 @@ def main():
 
             continue
 
-        taken_at, taken_at_local = (
-            to_archive_dates(detected)
+        taken_at, taken_at_local = to_archive_dates(
+            detected
         )
 
         print(
@@ -310,6 +363,9 @@ def main():
         if source == "EXIF":
             exif_count += 1
 
+        elif source == "FACEBOOK_TIMESTAMP":
+            facebook_count += 1
+
         elif source == "FILENAME":
             filename_count += 1
 
@@ -320,16 +376,15 @@ def main():
 
     print()
     print("========== RESULTADO ==========")
-    print(f"Reparables:       {repaired}")
-    print(f"  Desde EXIF:     {exif_count}")
-    print(f"  Desde filename: {filename_count}")
-    print(f"Sin resolver:     {unresolved}")
+    print(f"Reparables:          {repaired}")
+    print(f"  Desde EXIF:        {exif_count}")
+    print(f"  Desde Facebook:    {facebook_count}")
+    print(f"  Desde filename:    {filename_count}")
+    print(f"Sin resolver:        {unresolved}")
 
     if not args.apply:
         print()
-        print(
-            "No se modificó SQLite."
-        )
+        print("No se modificó SQLite.")
         print(
             "Si los resultados se ven bien, "
             "ejecuta nuevamente con --apply."
@@ -340,4 +395,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
